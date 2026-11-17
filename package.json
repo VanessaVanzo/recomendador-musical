@@ -1,0 +1,23 @@
+{
+  "name": "recomendador-musical",
+  "version": "1.0.0",
+  "description": "Assistente de recomendação musical com memória usando LangChain e LangGraph",
+  "type": "module",
+  "scripts": {
+    "start": "node src/index.js",
+    "test": "node --test"
+  },
+  "engines": {
+    "node": ">=24"
+  },
+  "dependencies": {
+    "@langchain/core": "^1.4.0",
+    "@langchain/langgraph": "^1.7.4",
+    "@langchain/langgraph-checkpoint-postgres": "^1.1.3",
+    "@langchain/openrouter": "^0.4.25",
+    "better-sqlite3": "^13.1.1",
+    "dotenv": "^18.0.10",
+    "langchain": "^1.6.5",
+    "pg": "^8.23.1"
+  }
+}

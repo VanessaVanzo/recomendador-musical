@@ -1,0 +1,242 @@
+# 🎵 Recomendador Musical
+
+Assistente de recomendação musical desenvolvido com **Node.js, LangChain e LangGraph**, capaz de gerar recomendações personalizadas com base nas preferências musicais e no histórico de conversas do usuário.
+
+O projeto explora a construção de agentes de inteligência artificial com memória de curto e longo prazo, utilizando SQLite e PostgreSQL para persistência de informações.
+
+## 🚀 Tecnologias utilizadas
+
+- **Node.js 24+:** ambiente de execução JavaScript.
+- **LangChain:** integração e comunicação com modelos de linguagem (LLMs).
+- **LangGraph:** construção e orquestração do fluxo de execução do agente.
+- **OpenRouter:** acesso aos modelos de inteligência artificial.
+- **SQLite:** armazenamento das preferências musicais dos usuários.
+- **PostgreSQL 16:** persistência dos estados e checkpoints das conversas.
+- **Docker:** gerenciamento do ambiente PostgreSQL.
+
+## ✨ Funcionalidades
+
+- Extração de preferências musicais a partir das mensagens do usuário.
+- Identificação de artistas, gêneros e estilos musicais.
+- Armazenamento de preferências musicais de longo prazo.
+- Recuperação de preferências em diferentes conversas.
+- Geração de recomendações musicais personalizadas com IA.
+- Utilização do histórico recente para contextualizar as respostas.
+- Persistência do estado das conversas por meio de checkpoints do LangGraph.
+
+## 🧠 Arquitetura do projeto
+
+O projeto utiliza LangGraph para organizar e controlar o fluxo de execução do agente.
+
+### Fluxo de execução
+
+O grafo é composto por quatro nós principais:
+
+1. **extrairPreferencias:** identifica as preferências musicais mencionadas pelo usuário.
+2. **salvarPreferencias:** armazena as preferências identificadas.
+3. **buscarPreferencias:** recupera as preferências previamente armazenadas.
+4. **gerarRecomendacao:** utiliza as informações recuperadas e o modelo de IA para gerar recomendações personalizadas.
+
+### Sistema de memória
+
+O projeto utiliza dois mecanismos de memória:
+
+**Memória de longo prazo — SQLite**
+
+Armazena as preferências musicais associadas ao identificador do usuário (`usuarioId`).
+
+Isso permite que o agente recupere informações sobre o gosto musical mesmo quando uma nova conversa é iniciada.
+
+**Memória conversacional — PostgreSQL**
+
+Utiliza `PostgresSaver`, disponibilizado pelo LangGraph Checkpoint, para persistir os estados e históricos das conversas.
+
+O identificador `thread_id` permite recuperar o estado de uma conversa específica.
+
+## 📁 Estrutura do projeto
+
+```text
+recomendador-musical/
+│
+├── src/
+│   ├── config/
+│   │   ├── database.js
+│   │   └── testarPostgres.js
+│   │
+│   ├── graph/
+│   │   ├── EstadoRecomendacao.js
+│   │   ├── grafoRecomendacao.js
+│   │   ├── testarBuscaPreferencias.js
+│   │   ├── testarExtracao.js
+│   │   ├── testarPersistencia.js
+│   │   ├── testarSalvarPreferencias.js
+│   │   │
+│   │   └── nodes/
+│   │       ├── buscarPreferencias.js
+│   │       ├── extrairPreferencias.js
+│   │       ├── gerarRecomendacao.js
+│   │       └── salvarPreferencias.js
+│   │
+│   ├── prompts/
+│   │
+│   ├── services/
+│   │   └── memory/
+│   │       ├── MemoryService.js
+│   │       ├── PreferencesService.js
+│   │       └── testarMemoryService.js
+│   │
+│   └── index.js
+│
+├── storage/
+│   └── preferences.db
+│
+├── docker-compose.yml
+├── package.json
+├── package-lock.json
+├── .gitignore
+└── README.md
+```
+
+## ⚙️ Instalação e configuração
+
+### 1. Pré-requisitos
+
+Antes de executar o projeto, é necessário ter instalado:
+
+- Node.js 24 ou superior.
+- Docker Desktop.
+- Git.
+- Uma chave de API do OpenRouter.
+
+### 2. Clonar o repositório
+
+```bash
+git clone URL_DO_REPOSITORIO
+```
+
+Entre na pasta do projeto:
+
+```bash
+cd recomendador-musical
+```
+
+### 3. Instalar as dependências
+
+```bash
+npm install
+```
+
+### 4. Configurar as variáveis de ambiente
+
+Crie um arquivo `.env` na raiz do projeto.
+
+Exemplo:
+
+```env
+OPENROUTER_API_KEY=sua_chave_api
+DATABASE_URL=postgresql://recomendador:SUA_SENHA@localhost:5432/recomendador_musical
+```
+
+Substitua `SUA_SENHA` pela senha configurada no `docker-compose.yml`.
+
+**Importante:** o arquivo `.env` contém informações sensíveis e não deve ser enviado ao GitHub.
+
+### 5. Iniciar o PostgreSQL com Docker
+
+Na raiz do projeto, execute:
+
+```bash
+docker compose up -d
+```
+
+Esse comando inicia o container PostgreSQL configurado no `docker-compose.yml`.
+
+Configurações utilizadas:
+
+| Configuração | Valor |
+|---|---|
+| Imagem | postgres:16 |
+| Container | recomendador-musical-db |
+| Banco de dados | recomendador_musical |
+| Usuário | recomendador |
+| Porta | 5432 |
+| Volume | postgres_data |
+
+O volume Docker permite persistir os dados do PostgreSQL mesmo quando o container é encerrado.
+
+## ▶️ Executando o projeto
+
+Após instalar as dependências, configurar o arquivo `.env` e iniciar o PostgreSQL, execute:
+
+```bash
+npm start
+```
+
+O assistente solicitará uma pergunta pelo terminal.
+
+Exemplo:
+
+```text
+O que você gostaria de ouvir hoje? gosto de pop
+```
+
+Em seguida, o agente processará a mensagem, consultará as preferências musicais e enviará o contexto ao modelo de IA para gerar recomendações.
+
+## 🧪 Scripts de teste
+
+O projeto possui arquivos de teste para verificar componentes e funcionalidades individualmente.
+
+Alguns exemplos:
+
+```bash
+node src/config/testarPostgres.js
+```
+
+```bash
+node src/services/memory/testarMemoryService.js
+```
+
+```bash
+node src/graph/testarExtracao.js
+```
+
+```bash
+node src/graph/testarSalvarPreferencias.js
+```
+
+```bash
+node src/graph/testarBuscaPreferencias.js
+```
+
+## 🐳 Gerenciamento do PostgreSQL
+
+Para verificar os containers em execução:
+
+```bash
+docker ps
+```
+
+Para encerrar o container:
+
+```bash
+docker compose down
+```
+
+Os dados persistidos no volume Docker são mantidos.
+
+## 🎯 Objetivo de aprendizado
+
+Este projeto foi desenvolvido com o objetivo de praticar conceitos relacionados à construção de agentes de inteligência artificial, incluindo:
+
+- Integração com modelos de linguagem (LLMs).
+- Construção de fluxos com LangGraph.
+- Gerenciamento de estado.
+- Criação e utilização de nós.
+- Extração e persistência de informações.
+- Memória de curto e longo prazo.
+- Checkpoints e recuperação de conversas.
+- Integração entre LangChain, LangGraph e bancos de dados.
+
+---
+
+**Projeto desenvolvido para fins de estudo e aprendizado de tecnologias relacionadas à inteligência artificial e desenvolvimento de agentes com JavaScript.**
